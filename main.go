@@ -47,7 +47,7 @@ func escape(c complex128) int {
 		if cmplx.Abs(z) > 2 {
 			return i
 		}
-		z = cmplx.Pow(z, 2) + c
+		z = 1 / (cmplx.Pow(z, 2) + c)
 	}
 	return MaxEscape - 1
 }
