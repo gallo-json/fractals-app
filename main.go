@@ -17,6 +17,7 @@ const (
 	ViewWidth  = 640
 	ViewHeight = 480
 	MaxEscape  = 64
+	Port       = ":8090"
 )
 
 var indexTemplate *template.Template
@@ -41,13 +42,20 @@ func init() {
 	escapeColor = color.RGBA{0, 0, 0, 0}
 }
 
+type ExpressionParts struct {
+	// Az^B + c + D
+	A int
+	B int
+	D int
+}
+
 func escape(c complex128) int {
 	z := c
 	for i := 0; i < MaxEscape-1; i++ {
 		if cmplx.Abs(z) > 2 {
 			return i
 		}
-		z = 1 / (cmplx.Pow(z, 2) + c)
+		z = cmplx.Pow(z, 2) + c
 	}
 	return MaxEscape - 1
 }
@@ -103,11 +111,8 @@ func pic(w http.ResponseWriter, r *http.Request) {
 
 func index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	vars := make(map[string]interface{})
-	vars["Title"] = "Mandelbrot"
-	vars["Height"] = ViewHeight
-	vars["Width"] = ViewWidth
-	indexTemplate.Execute(w, vars)
+
+	indexTemplate.Execute(w, nil)
 }
 
 func main() {
@@ -117,7 +122,7 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/pic", pic)
 
-	err := http.ListenAndServe(":8090", nil)
+	err := http.ListenAndServe(Port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

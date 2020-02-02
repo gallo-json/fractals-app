@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>{{.Title}}</title>
+	<title>Your own fractal!</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<script>
@@ -19,10 +19,11 @@
 	</script>
 </head>
 <body>
-    <h1>{{.Title}}</h1>
+    <h1>Your own fractal!</h1>
+    <p>This simple fractal has the equation shape of f(z) = a * z ^ b + c + d. Play around with the sliders to see what fractals you can create!</p>
     <p>Click image to zoom. Reload page to restart.</p>
     <div>
-        <image id="pic" src="/pic" width="{{.Width}}px" height="{{.Height}}px" />
+        <image id="pic" src="/pic" width="640px" height="480px" />
     </div>
 
 	<script>
@@ -34,58 +35,29 @@
     </script>
 
     <div class="slidecontainer">
-        <input type="range" min="-5" max="5" value="50" class="slider" id="myRange">
-        <p>Value: <span id="demo"></span></p>
+        <p>a value</p>
+        <input type="range" min="-5" max="5" value="50" class="slider" id="rangeA">
+        <p>Value: <span id="A"></span></p>
     </div>
-    <style>
-        .slidecontainer {
-        width: 100%; /* Width of the outside container */
-        }
-
-        /* The slider itself */
-        .slider {
-        -webkit-appearance: none;  /* Override default CSS styles */
-        appearance: none;
-        width: 100%; /* Full-width */
-        height: 25px; /* Specified height */
-        background: #d3d3d3; /* Grey background */
-        outline: none; /* Remove outline */
-        opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-        -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-        transition: opacity .2s;
-        }
-
-        /* Mouse-over effects */
-        .slider:hover {
-        opacity: 1; /* Fully shown on mouse-over */
-        }
-
-        /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-        .slider::-webkit-slider-thumb {
-        -webkit-appearance: none; /* Override default look */
-        appearance: none;
-        width: 25px; /* Set a specific slider handle width */
-        height: 25px; /* Slider handle height */
-        background: #4CAF50; /* Green background */
-        cursor: pointer; /* Cursor on hover */
-        }
-
-        .slider::-moz-range-thumb {
-        width: 25px; /* Set a specific slider handle width */
-        height: 25px; /* Slider handle height */
-        background: #4CAF50; /* Green background */
-        cursor: pointer; /* Cursor on hover */
-        }
-    </style>
+    <div class="slidecontainer">
+        <p>b value</p>
+        <input type="range" min="-5" max="5" value="50" class="slider" id="rangeB">
+        <p>Value: <span id="B"></span></p>
+    </div>
     <script>
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        output.innerHTML = slider.value; // Display the default slider value
+        var sliderA = document.getElementById("rangeA");
+        var outputB = document.getElementById("A");
+        var sliderB = document.getElementById("rangeB");
+        var outputB = document.getElementById("B");
+        outputA.innerHTML = sliderA.valueA;
+        outputB.innerHTML = sliderB.valueB; // Display the default slider value
 
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
-            output.innerHTML = this.value;
-        }
+            outputA.innerHTML = this.valueA;
+            outputB.innerHTML = this.valueB;
+
+        } 
     </script>
 </body>
 </html>
