@@ -36,27 +36,17 @@
 
     <div class="slidecontainer">
         <p>a value</p>
-        <input type="range" min="-5" max="5" value="50" class="slider" id="rangeA">
-        <p>Value: <span id="A"></span></p>
-    </div>
-    <div class="slidecontainer">
-        <p>b value</p>
-        <input type="range" min="-5" max="5" value="50" class="slider" id="rangeB">
-        <p>Value: <span id="B"></span></p>
+        <input type="range" min="-5" max="5" value="50" class="slider" id="myRange">
+        <p>Value: <span id="demo"></span></p>
     </div>
     <script>
-        var sliderA = document.getElementById("rangeA");
-        var outputB = document.getElementById("A");
-        var sliderB = document.getElementById("rangeB");
-        var outputB = document.getElementById("B");
-        outputA.innerHTML = sliderA.valueA;
-        outputB.innerHTML = sliderB.valueB; // Display the default slider value
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        output.innerHTML = slider.value; // Display the default slider value
 
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
-            outputA.innerHTML = this.valueA;
-            outputB.innerHTML = this.valueB;
-
+            output.innerHTML = this.value;
         } 
     </script>
 </body>
