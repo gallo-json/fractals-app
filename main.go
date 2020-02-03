@@ -28,7 +28,7 @@ func init() {
 	var err error
 	indexTemplate, err = template.ParseFiles("index.html")
 	if err != nil {
-		panic(err)
+		log.Fatalf("err: %s\n", err)
 	}
 
 	palette = make([]color.RGBA, MaxEscape)
