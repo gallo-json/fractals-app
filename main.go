@@ -121,7 +121,7 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/pic", pic)
 
-	err := http.ListenAndServe("8090", nil)
+	err := http.ListenAndServe(":8090", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
