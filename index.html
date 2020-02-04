@@ -1,34 +1,37 @@
 <html>
+
 <head>
-	<title>Your own fractal!</title>
+    <title>Your own fractal!</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<script>
+    <script>
         var mx = 0.0;
         var my = 0.0;
         var radius = 2.0;
         function zoomAt(width, height, x, y) {
             var pixelSize = (radius * 2) / 640;
             var viewHeight = (height / width) * (radius * 2);
-	        var left = (mx - radius) + (pixelSize / 2);
-	        var top = (my - (viewHeight / 2)) + (pixelSize / 2);
-	        mx = left + x * pixelSize;
-	        my = top + y * pixelSize;
-	        radius = radius / 4.0;
+            var left = (mx - radius) + (pixelSize / 2);
+            var top = (my - (viewHeight / 2)) + (pixelSize / 2);
+            mx = left + x * pixelSize;
+            my = top + y * pixelSize;
+            radius = radius / 4.0;
         }
-	</script>
+    </script>
 </head>
+
 <body>
     <h1>Your own fractal!</h1>
-    <p>This simple fractal has the equation shape of f(z) = a * z ^ b + c + d. Play around with the sliders to see what fractals you can create!</p>
+    <p>This simple fractal has the equation shape of f(z) = a * z ^ b + c + d. Play around with the sliders to see what
+        fractals you can create!</p>
     <p>Click image to zoom. Reload page to restart.</p>
     <div>
         <image id="pic" src="/pic" width="640px" height="480px" />
     </div>
 
-	<script>
+    <script>
         var pic = document.getElementById("pic");
-        pic.addEventListener("click", function(e) {
+        pic.addEventListener("click", function (e) {
             zoomAt(pic.width, pic.height, e.offsetX, e.offsetY)
             pic.src = "/pic?mx=" + mx + "&my=" + my + "&radius=" + radius;
         });
@@ -45,9 +48,10 @@
         output.innerHTML = slider.value; // Display the default slider value
 
         // Update the current slider value (each time you drag the slider handle)
-        slider.oninput = function() {
+        slider.oninput = function () {
             output.innerHTML = this.value;
         } 
     </script>
 </body>
+
 </html>

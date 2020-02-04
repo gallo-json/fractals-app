@@ -17,7 +17,6 @@ const (
 	ViewWidth  = 640
 	ViewHeight = 480
 	MaxEscape  = 64
-	Port       = ":8090"
 )
 
 var indexTemplate *template.Template
@@ -122,7 +121,7 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/pic", pic)
 
-	err := http.ListenAndServe(Port, nil)
+	err := http.ListenAndServe("8090", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
