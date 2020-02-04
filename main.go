@@ -123,6 +123,6 @@ func main() {
 
 	err := http.ListenAndServe(":8090", nil)
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		log.Fatalf("ListenAndServe: %s\n", err)
 	}
 }
