@@ -107,9 +107,9 @@ func pic(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
-		value := SafeFloat64(r.FormValue("a-value"), 1.0)
+		aValue := SafeFloat64(r.FormValue("a-value"), 1.0)
 		// fmt.Fprintf(w, "Value = %s\n", value)
-		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, value)
+		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, aValue)
 		w.Header().Set("Content-Type", "image/png")
 		err := png.Encode(w, m)
 		if err != nil {
