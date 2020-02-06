@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -48,18 +49,18 @@ type ExpressionParts struct {
 	D int
 }
 
-func escape(c complex128, a float64, b float64) int {
+func escape(c complex128, a float64) int {
 	z := c
 	for i := 0; i < MaxEscape-1; i++ {
 		if cmplx.Abs(z) > 2 {
 			return i
 		}
-		z = complex(a, 0)*cmplx.Pow(z, complex(b, 0)) + c
+		z = complex(a, 0)*cmplx.Pow(z, 2) + c
 	}
 	return MaxEscape - 1
 }
 
-func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64, a int, b int) image.Image {
+func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64, a float64) image.Image {
 	m := image.NewRGBA(image.Rect(0, 0, imgWidth, imgHeight))
 	zoomWidth := radius * 2
 	pixelWidth := zoomWidth / float64(imgWidth)
@@ -75,7 +76,7 @@ func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64
 			defer wgx.Done()
 			for y := 0; y < imgHeight; y++ {
 				coord := complex(left+float64(xx)*pixelWidth, top+float64(y)*pixelHeight)
-				f := escape(coord, float64(a), float64(b))
+				f := escape(coord, a)
 				if f == MaxEscape-1 {
 					m.Set(xx, y, escapeColor)
 				}
@@ -100,12 +101,24 @@ func pic(w http.ResponseWriter, r *http.Request) {
 	my := SafeFloat64(r.FormValue("my"), 0.0)
 	radius := SafeFloat64(r.FormValue("radius"), 2.0)
 
-	m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, 1, 5)
-	w.Header().Set("Content-Type", "image/png")
-	err := png.Encode(w, m)
-	if err != nil {
-		log.Println("png.Encode:", err)
+	if r.Method == "GET" {
+		if err := r.ParseForm(); err != nil {
+			fmt.Fprintf(w, "ParseForm() err: %v", err)
+			return
+		}
+		// fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
+		value := SafeFloat64(r.FormValue("a-value"), 1.0)
+		// fmt.Fprintf(w, "Value = %s\n", value)
+		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, value)
+		w.Header().Set("Content-Type", "image/png")
+		err := png.Encode(w, m)
+		if err != nil {
+			log.Println("png.Encode:", err)
+		}
+	} else {
+		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
+
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +128,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("Listening - open http://localhost:8090/ in browser")
+	log.Println("Listening - open http://localhost:8000/ in browser")
 	defer log.Println("Exiting")
 
 	http.HandleFunc("/", index)

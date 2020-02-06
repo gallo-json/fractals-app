@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Your own fractal!</title>
+    <title>Your own fractal</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
@@ -26,8 +26,8 @@
 </head>
 
 <body>
-    <h1>Your own fractal!</h1>
-    <p>This simple fractal has the equation shape of f(z) = a * z ^ b + c + d. Play around with the sliders to see what
+    <h1>Your own fractal</h1>
+    <p>This simple fractal has the equation shape of f(z) = a * z ^ b + c + d, reminiscent of the Mandelbrot set. Play around with the sliders to see what
         fractals you can create!</p>
     <p>Click image to zoom. Reload page to restart.</p>
     <div>
@@ -42,21 +42,17 @@
         });
     </script>
 
-    <div class="slidecontainer">
-        <p>A Value</p>
-        <input type="range" min="-5.00" max="5.00" value="0.00" class="slider" id="myRange">
-        <p>Value: <span id="demo"></span></p>
+    <div>
+        <form action="" method="POST">	
+            <div class="slidecontainer">
+                <input type="range" min="-5" max="5" step="0.25" value="0" id="foo" name="a-value" onchange='document.getElementById("bar").value = "Slider Value = " + document.getElementById("foo").value;'/>
+                <br> 
+                <input type="text" name="bar" id="bar" value="Slider Value = 0" disabled />
+                <input type=submit value=Submit />
+                <br/>
+            </div>
+        </form>
     </div>
-    <script>
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        output.innerHTML = slider.value; // Display the default slider value
-
-        // Update the current slider value (each time you drag the slider handle)
-        slider.oninput = function () {
-            output.innerHTML = this.value;
-        } 
-    </script>
 </body>
 
 </html>
