@@ -1,3 +1,10 @@
+/*
+indexTemplate, err = template.ParseFiles("index.html") line 34
+http.ServeFile(w, r, "index.html") line 103
+
+Do these lines mess eachother up?
+*/
+
 package main
 
 import (
@@ -26,7 +33,7 @@ var escapeColor color.RGBA
 
 func init() {
 	var err error
-	indexTemplate, err = template.ParseFiles("index.html")
+	indexTemplate, err = template.ParseFiles("index.html") // <=== CONFLICTING?
 	if err != nil {
 		log.Fatalf("err: %s\n", err)
 	}
@@ -40,13 +47,6 @@ func init() {
 			255}
 	}
 	escapeColor = color.RGBA{0, 0, 0, 0}
-}
-
-type ExpressionParts struct {
-	// Az^B + c + D
-	A int
-	B int
-	D int
 }
 
 func escape(c complex128, a float64) int {
@@ -102,13 +102,15 @@ func pic(w http.ResponseWriter, r *http.Request) {
 	radius := SafeFloat64(r.FormValue("radius"), 2.0)
 
 	if r.Method == "GET" {
+		http.ServeFile(w, r, "index.html") // <=== CONFLICTING?
+	} else if r.Method == "POST" {
 		if err := r.ParseForm(); err != nil {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
 			return
 		}
 		// fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
 		aValue := SafeFloat64(r.FormValue("a-value"), 1.0)
-		// fmt.Fprintf(w, "Value = %s\n", value)
+		// fmt.Fprintf(w, "Value = %s\n", aValue)
 		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, aValue)
 		w.Header().Set("Content-Type", "image/png")
 		err := png.Encode(w, m)
@@ -124,14 +126,13 @@ func pic(w http.ResponseWriter, r *http.Request) {
 func index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	indexTemplate.Execute(w, nil)
+	http.ServeFile(w, r, "index.html")
 }
 
 func main() {
 	log.Println("Listening - open http://localhost:8000/ in browser")
 	defer log.Println("Exiting")
 
-	http.HandleFunc("/", index)
 	http.HandleFunc("/pic", pic)
 
 	err := http.ListenAndServe(":8000", nil)
