@@ -34,18 +34,18 @@ func init() {
 	escapeColor = color.RGBA{0, 0, 0, 0}
 }
 
-func escape(c complex128, a float64) int {
+func escape(c complex128, a, b float64) int {
 	z := c
 	for i := 0; i < MaxEscape-1; i++ {
 		if cmplx.Abs(z) > 2 {
 			return i
 		}
-		z = complex(a, 0)*cmplx.Pow(z, 2) + c
+		z = complex(a, 0)*cmplx.Pow(z, complex(b, 0)) + c
 	}
 	return MaxEscape - 1
 }
 
-func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64, a float64) image.Image {
+func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64, a, b float64) image.Image {
 	m := image.NewRGBA(image.Rect(0, 0, imgWidth, imgHeight))
 	zoomWidth := radius * 2
 	pixelWidth := zoomWidth / float64(imgWidth)
@@ -61,7 +61,7 @@ func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64
 			defer wgx.Done()
 			for y := 0; y < imgHeight; y++ {
 				coord := complex(left+float64(xx)*pixelWidth, top+float64(y)*pixelHeight)
-				f := escape(coord, a)
+				f := escape(coord, a, b)
 				if f == MaxEscape-1 {
 					m.Set(xx, y, escapeColor)
 				}
@@ -81,44 +81,42 @@ func SafeFloat64(s string, def float64) float64 {
 	return f
 }
 
-func pic(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, r *http.Request) {
 	mx := SafeFloat64(r.FormValue("mx"), 0.0)
 	my := SafeFloat64(r.FormValue("my"), 0.0)
 	radius := SafeFloat64(r.FormValue("radius"), 2.0)
 
-	if r.Method == "GET" {
-		http.ServeFile(w, r, "index.html") // <=== CONFLICTING?
-		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, 1.0)
+	pic := func(aValue, bValue float64) {
+		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, aValue, bValue)
 		w.Header().Set("Content-Type", "image/png")
 		err := png.Encode(w, m)
 		if err != nil {
 			log.Println("png.Encode:", err)
 		}
-	} else if r.Method == "POST" {
+	}
+
+	switch r.Method {
+	case "GET":
+		http.ServeFile(w, r, "index.html") // <=== CONFLICTING?
+		pic(1.0, 2.0)
+	case "POST":
 		if err := r.ParseForm(); err != nil {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
 			return
 		}
-		// fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
 		aValue := SafeFloat64(r.FormValue("a-value"), 1.0)
-		// fmt.Fprintf(w, "Value = %s\n", aValue)
-		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, aValue)
-		w.Header().Set("Content-Type", "image/png")
-		err := png.Encode(w, m)
-		if err != nil {
-			log.Println("png.Encode:", err)
-		}
-	} else {
+		bValue := SafeFloat64(r.FormValue("b-value"), 2.0)
+		pic(aValue, bValue)
+	default:
 		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
-
 }
 
 func main() {
 	log.Println("Listening - open http://localhost:8000/ in browser")
 	defer log.Println("Exiting")
 
-	http.HandleFunc("/pic", pic)
+	http.HandleFunc("/", index)
 
 	err := http.ListenAndServe(":8000", nil)
 	if err != nil {
