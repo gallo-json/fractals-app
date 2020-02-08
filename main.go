@@ -34,18 +34,22 @@ func init() {
 	escapeColor = color.RGBA{0, 0, 0, 0}
 }
 
-func escape(c complex128, a, b float64) int {
+type Fractal struct {
+	a, b, d, e float64
+}
+
+func escape(c complex128, fractal Fractal) int {
 	z := c
 	for i := 0; i < MaxEscape-1; i++ {
 		if cmplx.Abs(z) > 2 {
 			return i
 		}
-		z = complex(a, 0)*cmplx.Pow(z, complex(b, 0)) + c
+		z = complex(fractal.a, fractal.b)*cmplx.Pow(z, complex(fractal.d, fractal.e)) + c
 	}
 	return MaxEscape - 1
 }
 
-func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64, a, b float64) image.Image {
+func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64, fractal Fractal) image.Image {
 	m := image.NewRGBA(image.Rect(0, 0, imgWidth, imgHeight))
 	zoomWidth := radius * 2
 	pixelWidth := zoomWidth / float64(imgWidth)
@@ -61,7 +65,7 @@ func generate(imgWidth int, imgHeight int, viewCenter complex128, radius float64
 			defer wgx.Done()
 			for y := 0; y < imgHeight; y++ {
 				coord := complex(left+float64(xx)*pixelWidth, top+float64(y)*pixelHeight)
-				f := escape(coord, a, b)
+				f := escape(coord, fractal)
 				if f == MaxEscape-1 {
 					m.Set(xx, y, escapeColor)
 				}
@@ -86,8 +90,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 	my := SafeFloat64(r.FormValue("my"), 0.0)
 	radius := SafeFloat64(r.FormValue("radius"), 2.0)
 
-	pic := func(aValue, bValue float64) {
-		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, aValue, bValue)
+	pic := func(fractal Fractal) {
+		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, fractal)
 		w.Header().Set("Content-Type", "image/png")
 		err := png.Encode(w, m)
 		if err != nil {
@@ -98,15 +102,20 @@ func index(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		http.ServeFile(w, r, "index.html") // <=== CONFLICTING?
-		pic(1.0, 2.0)
+		startFractal := Fractal{1.0, 2.0, 0.0, 0.0}
+		pic(startFractal)
 	case "POST":
 		if err := r.ParseForm(); err != nil {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
 			return
 		}
-		aValue := SafeFloat64(r.FormValue("a-value"), 1.0)
-		bValue := SafeFloat64(r.FormValue("b-value"), 2.0)
-		pic(aValue, bValue)
+		userFractal := Fractal{
+			SafeFloat64(r.FormValue("a-value"), 1.0),
+			SafeFloat64(r.FormValue("b-value"), 2.0),
+			SafeFloat64(r.FormValue("d-value"), 0.0),
+			SafeFloat64(r.FormValue("e-value"), 0.0),
+		}
+		pic(userFractal)
 	default:
 		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
