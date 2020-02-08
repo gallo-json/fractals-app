@@ -1,10 +1,3 @@
-/*
-indexTemplate, err = template.ParseFiles("index.html") line 34
-http.ServeFile(w, r, "index.html") line 103
-
-Do these lines mess eachother up?
-*/
-
 package main
 
 import (
@@ -18,7 +11,6 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
-	"text/template"
 )
 
 const (
@@ -27,17 +19,10 @@ const (
 	MaxEscape  = 64
 )
 
-var indexTemplate *template.Template
 var palette []color.RGBA
 var escapeColor color.RGBA
 
 func init() {
-	var err error
-	indexTemplate, err = template.ParseFiles("index.html") // <=== CONFLICTING?
-	if err != nil {
-		log.Fatalf("err: %s\n", err)
-	}
-
 	palette = make([]color.RGBA, MaxEscape)
 	for i := 0; i < MaxEscape-1; i++ {
 		palette[i] = color.RGBA{
@@ -123,17 +108,11 @@ func pic(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	http.ServeFile(w, r, "index.html")
-}
-
 func main() {
 	log.Println("Listening - open http://localhost:8000/ in browser")
 	defer log.Println("Exiting")
 
-	http.HandleFunc("/pic", pic)
+	http.HandleFunc("/", pic)
 
 	err := http.ListenAndServe(":8000", nil)
 	if err != nil {
