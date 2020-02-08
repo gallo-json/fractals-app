@@ -88,6 +88,12 @@ func pic(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		http.ServeFile(w, r, "index.html") // <=== CONFLICTING?
+		m := generate(ViewWidth, ViewHeight, complex(mx, my), radius, 1.0)
+		w.Header().Set("Content-Type", "image/png")
+		err := png.Encode(w, m)
+		if err != nil {
+			log.Println("png.Encode:", err)
+		}
 	} else if r.Method == "POST" {
 		if err := r.ParseForm(); err != nil {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
@@ -112,7 +118,7 @@ func main() {
 	log.Println("Listening - open http://localhost:8000/ in browser")
 	defer log.Println("Exiting")
 
-	http.HandleFunc("/", pic)
+	http.HandleFunc("/pic", pic)
 
 	err := http.ListenAndServe(":8000", nil)
 	if err != nil {
