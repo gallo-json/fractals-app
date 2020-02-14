@@ -35,7 +35,7 @@ func init() {
 }
 
 type Fractal struct {
-	a, b, d, e float64
+	a, b, d, e *float64
 }
 
 func escape(c complex128, fractal *Fractal) int {
